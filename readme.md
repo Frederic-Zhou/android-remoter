@@ -72,6 +72,16 @@ on property:sys.boot_completed=1
    - 8200 frpc管理端口
    - frps服务器地址和端口（与运行frps的服务器必须一致） frps与frpc通信的地址和端口
 
+```
+curl --location --request POST 'http://<手机IP地址>:8000/setfrpc' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'serverAddr=<服务器IP地址>' \
+--data-urlencode 'serverPort=7000' \
+--data-urlencode 'devicesID=testxxx-<可以加上DeviceID>' \
+--data-urlencode 'user=admin' \
+--data-urlencode 'pwd=123'
+```
+
 
 ## 问题解决
 有一些手机atx-agent的投屏和触控不可用，因为atx-agent里没有正确的下载对应的minicap.so
