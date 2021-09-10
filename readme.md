@@ -82,6 +82,20 @@ curl --location --request POST 'http://<手机IP地址>:8000/setfrpc' \
 --data-urlencode 'pwd=123'
 ```
 
+6. 运行FRPS服务器
+`./frps -c ./frps.ini`
+配置文件
+```
+[common]
+bind_port = 7000
+vhost_http_port = 8080
+
+dashboard_port = 7555
+dashboard_user = admin
+dashboard_pwd = admin
+
+subdomain_host = localhost
+```
 
 ## 问题解决
 有一些手机atx-agent的投屏和触控不可用，因为atx-agent里没有正确的下载对应的minicap.so
