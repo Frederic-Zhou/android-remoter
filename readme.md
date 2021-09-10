@@ -76,7 +76,7 @@ on property:sys.boot_completed=1
 curl --location --request POST 'http://<手机IP地址>:8000/setfrpc' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'serverAddr=<服务器IP地址>' \
---data-urlencode 'serverPort=7000' \
+--data-urlencode 'serverPort=<服务器端口,默认为7000>' \
 --data-urlencode 'devicesID=testxxx-<可以加上DeviceID>' \
 --data-urlencode 'user=admin' \
 --data-urlencode 'pwd=123'
@@ -87,14 +87,14 @@ curl --location --request POST 'http://<手机IP地址>:8000/setfrpc' \
 配置文件
 ```ini
 [common]
-bind_port = 7000
-vhost_http_port = 8080
+bind_port = 7000 ;frpc与frps通信端口
+vhost_http_port = 8080 ;http方式访问内网设备的端口
 
-dashboard_port = 7555
-dashboard_user = admin
+dashboard_port = 7555 ;frps管理面板端口
+dashboard_user = admin 
 dashboard_pwd = admin
 
-subdomain_host = localhost
+subdomain_host = localhost ;域名
 ```
 
 ## 问题解决
