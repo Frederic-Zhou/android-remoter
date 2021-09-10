@@ -101,3 +101,11 @@ subdomain_host = localhost
 有一些手机atx-agent的投屏和触控不可用，因为atx-agent里没有正确的下载对应的minicap.so
 可以到minicap官方 下载 https://github.com/DeviceFarmer/minicap
 还可以简单的在连接上adb后，用`python -m uiautomator2 init`初始化一次，安装上正确的版本
+
+## 相关资料 
+
+frp： https://github.com/fatedier/frp
+atx-agent: https://github.com/openatx/atx-agent
+minicap: https://github.com/DeviceFarmer/minicap
+uiautomator2: https://github.com/openatx/uiautomator2
+ttyd: https://github.com/tsl0922/ttyd

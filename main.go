@@ -37,8 +37,6 @@ var atxlog, termlog, frpclog bytes.Buffer
 func main() {
 	log("ver:0.0.1")
 
-	setFrpcIni("192.168.3.100", "7000", "test02", "admin", "123")
-
 	go runTerm()
 	go runFrpc()
 	go runAtxAgent()
@@ -203,6 +201,20 @@ func runService(port string) {
 			"message": "success",
 		})
 	})
+
+	r.GET("/getfrpc", func(c *gin.Context) {
+		f, err := getFrpcIni()
+
+		if err != nil {
+			c.JSON(200, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+		c.JSON(200, gin.H{
+			"message": f,
+		})
+	})
 	r.Run(port)
 }
 
@@ -215,14 +227,14 @@ func log(args ...interface{}) {
 	logs = append(logs, msg)
 }
 
-func setFrpcIni(serverAddr, serverPort, devicesID, user, pwd string) (err error) {
+func setFrpcIni(serverAddr, serverPort, deviceID, user, pwd string) (err error) {
 	cfg := ini.Empty()
 
 	common := cfg.Section("common")
-	atx := cfg.Section("atx-" + devicesID)
-	term := cfg.Section("term-" + devicesID)
-	frpc := cfg.Section("frpc-" + devicesID)
-	ctrl := cfg.Section("ctrl-" + devicesID)
+	atx := cfg.Section("atx-" + deviceID)
+	term := cfg.Section("term-" + deviceID)
+	frpc := cfg.Section("frpc-" + deviceID)
+	ctrl := cfg.Section("ctrl-" + deviceID)
 
 	common.Key("server_addr").SetValue(serverAddr)
 	common.Key("server_port").SetValue(serverPort)
@@ -230,32 +242,51 @@ func setFrpcIni(serverAddr, serverPort, devicesID, user, pwd string) (err error)
 	common.Key("admin_port").SetValue("8200")
 	common.Key("admin_user").SetValue(user)
 	common.Key("admin_pwd").SetValue(pwd)
+	common.Key("deviceID").SetValue(deviceID)
 
 	atx.Key("type").SetValue("http")
 	atx.Key("local_port").SetValue("7912")
 	atx.Key("http_user").SetValue(user)
 	atx.Key("http_pwd").SetValue(pwd)
-	atx.Key("subdomain").SetValue("atx-" + devicesID)
+	atx.Key("subdomain").SetValue("atx-" + deviceID)
 
 	ctrl.Key("type").SetValue("http")
 	ctrl.Key("local_port").SetValue("8000")
 	ctrl.Key("http_user").SetValue(user)
 	ctrl.Key("http_pwd").SetValue(pwd)
-	ctrl.Key("subdomain").SetValue("ctrl-" + devicesID)
+	ctrl.Key("subdomain").SetValue("ctrl-" + deviceID)
 
 	term.Key("type").SetValue("http")
 	term.Key("local_port").SetValue("8100")
 	term.Key("http_user").SetValue(user)
 	term.Key("http_pwd").SetValue(pwd)
-	term.Key("subdomain").SetValue("term-" + devicesID)
+	term.Key("subdomain").SetValue("term-" + deviceID)
 
 	frpc.Key("type").SetValue("http")
 	frpc.Key("local_port").SetValue("8200")
-	frpc.Key("subdomain").SetValue("frpc-" + devicesID)
+	frpc.Key("subdomain").SetValue("frpc-" + deviceID)
 
 	err = cfg.SaveTo(FRPCPATH + "/frpc.ini")
 
 	return err
 }
 
-//adb root && adb shell mount -o rw,remount / && GOOS=linux GOARCH=arm GOARM=7 go build && adb push ./android-remoter /system/xbin/AR && adb shell reboot
+func getFrpcIni() (frpcini map[string]string, err error) {
+
+	cfg, err := ini.Load(FRPCPATH + "/frpc.ini")
+	if err != nil {
+		log("Fail to read file: %v", err)
+		return
+	}
+
+	common := cfg.Section("common")
+	frpcini = map[string]string{
+		"serverAddr": common.Key("server_addr").Value(),
+		"serverPort": common.Key("server_port").Value(),
+		"user":       common.Key("admin_user").Value(),
+		"pwd":        common.Key("admin_pwd").Value(),
+		"deviceID":   common.Key("deviceID").Value(),
+	}
+
+	return
+}
