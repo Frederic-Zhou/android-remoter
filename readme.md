@@ -34,11 +34,6 @@ on property:sys.boot_completed=1
    start androidremoter
 ```
 
-## 开发工具
-
-编译调试
-`adb root && adb remount && GOOS=linux GOARCH=arm GOARM=7 go build && adb push ./android-remoter /system/xbin/AR && adb shell reboot`
-
 ## useage
 
 1. 在main.go 目录运行
