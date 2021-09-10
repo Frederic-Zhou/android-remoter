@@ -16,7 +16,7 @@
 
 ## init.**.rc
 
-``` sh
+```conf
 service androidremoter /system/xbin/AR/android-remoter
     user root
     group root
@@ -72,7 +72,7 @@ on property:sys.boot_completed=1
    - 8200 frpc管理端口
    - frps服务器地址和端口（与运行frps的服务器必须一致） frps与frpc通信的地址和端口
 
-```
+```shell
 curl --location --request POST 'http://<手机IP地址>:8000/setfrpc' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'serverAddr=<服务器IP地址>' \
@@ -85,7 +85,7 @@ curl --location --request POST 'http://<手机IP地址>:8000/setfrpc' \
 6. 运行FRPS服务器
 `./frps -c ./frps.ini`
 配置文件
-```
+```ini
 [common]
 bind_port = 7000
 vhost_http_port = 8080
