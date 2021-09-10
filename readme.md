@@ -12,7 +12,7 @@
 
 ## 将系统改为可写状态并进入
 
-`adb root && adb shell mount -o rw,remount / && adb shell`
+`adb root && adb remount / && adb shell`
 
 ## init.**.rc
 
@@ -37,15 +37,16 @@ on property:sys.boot_completed=1
 ## 开发工具
 
 编译调试
-`adb root && adb shell mount -o rw,remount / && GOOS=linux GOARCH=arm GOARM=7 go build && adb push ./android-remoter /system/xbin/AR && adb shell reboot`
-
+`adb root && adb remount && GOOS=linux GOARCH=arm GOARM=7 go build && adb push ./android-remoter /system/xbin/AR && adb shell reboot`
 
 ## useage
 
 1. 在main.go 目录运行
-`adb root && adb shell mount -o rw,remount / && GOOS=linux GOARCH=arm GOARM=7 go build && adb push ./android-remoter /system/xbin/AR && adb push ./assets /system/xbin/AR`
+`adb root && adb remount && adb shell mkdir -p /system/xbin/AR && GOOS=linux GOARCH=arm GOARM=7 go build && adb push ./android-remoter /system/xbin/AR && adb push ./assets /system/xbin/AR`
 
-2. `adb shell` 进入手机linux ，修改 根目录下的 init.**.rc，添加内容如下
+
+
+1. `adb shell` 进入手机linux ，修改 根目录下的 init.**.rc，添加内容如下
 
 ``` sh
 service androidremoter /system/xbin/AR/android-remoter
@@ -75,3 +76,9 @@ on property:sys.boot_completed=1
    - 8100 term端口
    - 8200 frpc管理端口
    - frps服务器地址和端口（与运行frps的服务器必须一致） frps与frpc通信的地址和端口
+
+
+## 问题解决
+有一些手机atx-agent的投屏和触控不可用，因为atx-agent里没有正确的下载对应的minicap.so
+可以到minicap官方 下载 https://github.com/DeviceFarmer/minicap
+还可以简单的在连接上adb后，用`python -m uiautomator2 init`初始化一次，安装上正确的版本

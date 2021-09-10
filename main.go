@@ -175,7 +175,7 @@ func runService(port string) {
 			return
 		}
 
-		output, err := utils.RunShell("mount -o rw,remount /")
+		output, err := utils.RunShell("remount")
 		if err != nil {
 			c.JSON(200, gin.H{
 				"message": string(output) + " " + err.Error(),
