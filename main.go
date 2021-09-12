@@ -4,7 +4,6 @@ import (
 	"android-remoter/utils"
 	"bytes"
 	"flag"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -39,7 +38,7 @@ func main() {
 
 	go runTerm()
 	go runFrpc()
-	go runAtxAgent()
+	runAtxAgent()
 
 	port := flag.String("p", "8000", "address")
 	flag.Parse()
@@ -49,6 +48,7 @@ func main() {
 
 func runTerm() {
 	for {
+
 		log("term runing")
 		cmd := utils.Command{
 			Args:       []string{TERMPATH + "/term", "-p 8100", "bash"},
@@ -62,7 +62,7 @@ func runTerm() {
 
 		err := cmd.Run()
 		if err != nil {
-			log(termlog.String())
+			// log(termlog.String())
 			log(err.Error())
 		}
 
@@ -88,7 +88,7 @@ func runFrpc() {
 
 		err := cmd.Run()
 		if err != nil {
-			log(frpclog.String())
+			// log(frpclog.String())
 			log(err.Error())
 		}
 
@@ -99,26 +99,24 @@ func runFrpc() {
 }
 
 func runAtxAgent() {
-	for {
-		log("atx runing")
 
-		cmd := utils.Command{
-			Args:       []string{ATXPATHv7 + "/atx-agent", "server"},
-			Shell:      true,
-			ShellQuote: false,
-			Timeout:    10 * time.Minute,
-		}
+	log("atx runing")
 
-		cmd.Stderr = &atxlog
-		cmd.Stdout = &atxlog
+	cmd := utils.Command{
+		Args:       []string{ATXPATHv7 + "/atx-agent", "server", "-d", "--stop"},
+		Shell:      true,
+		ShellQuote: false,
+		Timeout:    10 * time.Minute,
+	}
 
-		err := cmd.Run()
-		if err != nil {
-			log(atxlog.String())
-			log(err.Error())
-		}
-		log("atx 10秒后重启")
-		time.Sleep(10 * time.Second)
+	cmd.Stderr = &atxlog
+	cmd.Stdout = &atxlog
+
+	err := cmd.Run()
+	if err != nil {
+		log(atxlog.String())
+		log(err.Error())
+
 	}
 
 }
@@ -132,26 +130,21 @@ func runService(port string) {
 		})
 	})
 	r.GET("/frpclog", func(c *gin.Context) {
-		data, _ := ioutil.ReadAll(&frpclog)
 
 		c.JSON(200, gin.H{
-			"message": string(data),
+			"message": frpclog.String(),
 		})
 	})
 	r.GET("/atxlog", func(c *gin.Context) {
 
-		data, _ := ioutil.ReadAll(&atxlog)
-
 		c.JSON(200, gin.H{
-			"message": string(data),
+			"message": atxlog.String(),
 		})
 	})
 	r.GET("/termlog", func(c *gin.Context) {
 
-		data, _ := ioutil.ReadAll(&termlog)
-
 		c.JSON(200, gin.H{
-			"message": string(data),
+			"message": termlog.String(),
 		})
 	})
 
@@ -215,6 +208,15 @@ func runService(port string) {
 			"message": f,
 		})
 	})
+
+	r.GET("/restart-atx", func(c *gin.Context) {
+
+		runAtxAgent()
+
+		c.JSON(200, gin.H{
+			"message": atxlog.String(),
+		})
+	})
 	r.Run(port)
 }
 
@@ -224,7 +226,13 @@ func log(args ...interface{}) {
 		l = append(l, fmt.Sprintf("%v", a))
 	}
 	msg := fmt.Sprintf("[%s]:%s", time.Now().Format("2006-01-02 15:04:05"), strings.Join(l, " "))
-	logs = append(logs, msg)
+
+	if len(logs) > 99 {
+		logs = append(logs[1:], msg)
+	} else {
+		logs = append(logs, msg)
+	}
+
 }
 
 func setFrpcIni(serverAddr, serverPort, deviceID, user, pwd string) (err error) {
