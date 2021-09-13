@@ -36,8 +36,8 @@ var atxlog, termlog, frpclog bytes.Buffer
 func main() {
 	log("ver:0.0.1")
 
-	go runTerm()
 	go runFrpc()
+	go runTerm()
 	runAtxAgent()
 
 	port := flag.String("p", "8000", "address")
@@ -217,6 +217,7 @@ func runService(port string) {
 			"message": atxlog.String(),
 		})
 	})
+
 	r.Run(port)
 }
 
