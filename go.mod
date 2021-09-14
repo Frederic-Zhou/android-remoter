@@ -26,3 +26,5 @@ require (
 	gopkg.in/ini.v1 v1.63.0
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
+
+require github.com/trazyn/uiautomator-go v1.0.6 // indirect
